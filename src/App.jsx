@@ -1,8 +1,54 @@
-import { React, useState } from "react";
+import { useState, useEffect } from "react";
 import Search from "./components/Search";
+
+const API_BASE_URL = "https://api.themoviedb.org/3";
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+const API_OPTIONS = {
+  method: "GET",
+  headers: {
+    Authorization: `Bearer ${API_KEY}`,
+    accept: "application/json",
+  },
+};
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [movies, setmovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchMovies = async () => {
+    setErrorMessage("");
+    setIsLoading(true);
+
+    try {
+      const endpoint = `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+      const response = await fetch(endpoint, API_OPTIONS);
+
+      if (!response.ok) {
+        throw new Error("An error occurred while fetching movies.");
+      }
+
+      const data = await response.json();
+
+      if (data.response === "False") {
+        setErrorMessage(
+          data.Error || "An error occurred while fetching movies."
+        );
+      } else {
+        setmovies(data.results);
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("An error occurred while fetching movies.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies();
+  }, []);
 
   return (
     <main>
@@ -14,9 +60,25 @@ const App = () => {
             Track <span className="text-gradient">movies</span> you’ve watched.
             Save those you want to see. Tell your friends what’s good.{" "}
           </h1>
+          <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
-        <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        <h1 className="text-white">{searchTerm}</h1>
+
+        <section className="all-movies">
+          <h2>All Movies</h2>
+          {isLoading ? (
+            <p className="text-white">Loading...</p>
+          ) : errorMessage ? (
+            <p className="text-red-500">{errorMessage}</p>
+          ) : (
+            <ul>
+              {movies.map((movie) => (
+                <p key={movie.id} className="text-white">
+                  {movie.title}
+                </p>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </main>
   );
