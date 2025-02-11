@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useDebounce } from "react-use";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
@@ -50,9 +51,13 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    fetchMovies(searchTerm);
-  }, [searchTerm]);
+  const [, cancel] = useDebounce(
+    () => {
+      fetchMovies(searchTerm);
+    },
+    500,
+    [searchTerm]
+  );
 
   return (
     <main>
