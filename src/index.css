@@ -139,6 +139,14 @@
       @apply text-gray-100 font-medium text-base;
     }
   }
+
+  .pagination {
+    @apply flex items-center justify-center space-x-4 mt-8 text-white;
+
+    & button {
+      @apply px-4 py-2 rounded-lg disabled:opacity-50 transition duration-300 bg-[#7e67c0] hover:bg-[#ad8dff];
+    }
+  }
 }
 
 @utility text-gradient {

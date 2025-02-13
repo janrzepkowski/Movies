@@ -3,6 +3,7 @@ import { useDebounce } from "react-use";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
+import Pagination from "./components/Pagination";
 import { updateSearchCount, getTrendingMovies } from "./appwrite.js";
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
@@ -18,18 +19,22 @@ const API_OPTIONS = {
 const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [movies, setmovies] = useState([]);
+  const [movies, setMovies] = useState([]);
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchMovies = async (query = "") => {
+  const fetchMovies = async (query = "", page = 1) => {
     setErrorMessage("");
     setIsLoading(true);
 
     try {
       const endpoint = query
-        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(
+            query
+          )}&page=${page}`
+        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`;
       const response = await fetch(endpoint, API_OPTIONS);
 
       if (!response.ok) {
@@ -44,7 +49,8 @@ const App = () => {
         );
       }
 
-      setmovies(data.results || []);
+      setMovies(data.results || []);
+      setTotalPages(data.total_pages || 1);
 
       if (query && data.results.length > 0) {
         await updateSearchCount(query, data.results[0]);
@@ -68,7 +74,8 @@ const App = () => {
 
   const [, cancel] = useDebounce(
     () => {
-      fetchMovies(searchTerm);
+      fetchMovies(searchTerm, 1);
+      setCurrentPage(1);
     },
     500,
     [searchTerm]
@@ -77,6 +84,22 @@ const App = () => {
   useEffect(() => {
     fetchTrendingMovies();
   }, []);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      const nextPage = currentPage + 1;
+      fetchMovies(searchTerm, nextPage);
+      setCurrentPage(nextPage);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      const previousPage = currentPage - 1;
+      fetchMovies(searchTerm, previousPage);
+      setCurrentPage(previousPage);
+    }
+  };
 
   return (
     <main>
@@ -112,11 +135,19 @@ const App = () => {
           ) : errorMessage ? (
             <p className="text-red-500">{errorMessage}</p>
           ) : (
-            <ul>
-              {movies.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
-            </ul>
+            <>
+              <ul>
+                {movies.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </ul>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPreviousPage={handlePreviousPage}
+                onNextPage={handleNextPage}
+              />
+            </>
           )}
         </section>
       </div>
