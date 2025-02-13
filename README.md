@@ -61,7 +61,7 @@ VITE_APPWRITE_COLLECTION_ID=
 Replace the placeholder values with your actual **[TheMovieDatabase API](https://developer.themoviedb.org/reference/intro/getting-started)** and **[Appwrite](https://cloud.appwrite.io/console/account/organizations)** credentials. You can obtain these credentials by signing up on the [TheMovieDatabase](https://developer.themoviedb.org/reference/intro/getting-started) and creating a new project on the [Appwrite](https://cloud.appwrite.io/console/account/organizations)
  
 
-## <a name="#running-application">▶️ Running Application</a>
+## <a name="running-application">▶️ Running Application</a>
 
 1. From the Movies directory, start the application:
 ```sh
