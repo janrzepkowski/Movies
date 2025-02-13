@@ -1,6 +1,6 @@
 # Movies App
 
-This project is a movie tracking application that allows users to search for movies, view trending movies, and track the movies they have watched. The project was built using React for the frontend and Appwrite for backend services.
+This project is a movie tracking application that allows users to search for movies, view trending movies, and track the movies they have watched. The project was built using React for the frontend and Appwrite for backend services. Link: [Movies](https://movies-janr.netlify.app/).
 
 ## 📋 <a name="table">Table of Contents</a>
 
